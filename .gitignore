@@ -1,0 +1,38 @@
+# OS / Editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Python / Jupyter
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# Environment / secrets (if any)
+.env
+*.env
+.env.*
+
+# Data files that should not be committed
+data/raw/*
+data/processed/*
+
+# Allow a placeholder file to keep folders in git
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Power BI and large binaries
+powerbi/*.pbix
+*.pbix
+
+# Temporary files, exports, and logs
+*.log
+*.tmp
+*.bak
+*.zip
+
+# VS Code / IDE
+.vscode/
+.idea/
