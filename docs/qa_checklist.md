@@ -34,3 +34,9 @@
 | Fan-out join duplicates | vw_customer_dim | multiple active subs per account | Fixed with ROW_NUMBER() OVER() |
 
 "Churned Customers (339) counts distinct accounts with at least one net churn event. Active Customers (390) counts accounts where churnflag = 'False' in the accounts table. The sum of active + churned exceeds 500 because some customers reactivated after churning and are counted in both groups."
+
+## Data Quality Notes
+- `satisfactionscore` (support_tickets): 825 nulls (41.2%) — expected when ticket closed without survey response. Excluded from avg satisfaction calculations.
+- `feedbacktext` (churn_events): 148 nulls (24.7%) — free-text field, not all customers provide exit feedback. Treated as optional.
+- `enddate` (subscriptions): 4,514 nulls (90.3%) — active subscriptions have no end date by design. Null = still active.
+- KPI Validation: All 7 core KPIs match between SQL and Python exactly. No discrepancies found.
