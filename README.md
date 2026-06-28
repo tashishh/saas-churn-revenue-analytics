@@ -1,54 +1,82 @@
 # SaaS Subscription Churn and Revenue Intelligence Dashboard
 
 ## Project Overview
+An end-to-end BI analytics project analyzing subscription churn, monthly recurring revenue (MRR) risk,
+customer usage patterns, and support burden for a fictional SaaS company called **RavenStack**.
+Built to demonstrate SQL, Python, Power BI, and dashboard QA skills for Data Analyst / BI Analyst roles.
 
-This project analyzes a synthetic SaaS subscription and churn dataset to help a fictional subscription business understand where churn is happening, how much monthly recurring revenue (MRR) is at risk, and which customer groups should be prioritized for retention actions. The focus is on subscription analytics, revenue intelligence, churn analysis, and dashboard QA, not on e-commerce or mobility use cases.
+## Business Problem
+RavenStack is experiencing customer churn that erodes monthly recurring revenue. Leadership needs to
+identify which customer segments are most likely to churn, how much MRR is at risk, and what
+retention actions should be prioritized. Usage is declining in specific segments, and support ticket
+volume may be a leading indicator of churn.
 
-The core business question is: **Which customer groups are most likely to churn, how much MRR is at risk, and what should the business do first?**
+## Core Business Questions
+1. What is the overall churn rate and how has it trended month over month?
+2. How much MRR is currently at risk from At Risk and High Value At Risk customers?
+3. Which subscription plans (Basic, Pro, Enterprise) have the highest churn rates?
+4. Do low-usage customers churn more than high-usage customers?
+5. Does higher support ticket volume correlate with higher churn likelihood?
+6. Which customer segments should be prioritized for retention action first?
 
 ## Tools Used
-
-- SQL Server (or MySQL) for data loading, cleaning, star-schema modeling, and source-of-truth KPI queries  
-- Python (pandas, Jupyter Notebook) for data profiling, EDA, and KPI validation  
-- Power BI for semantic model, DAX measures, and executive dashboard pages  
-- Git and GitHub for version control and project documentation
+| Tool | Purpose |
+|---|---|
+| SQL Server / PostgreSQL | Data loading, cleaning views, KPI validation |
+| Python + Jupyter | EDA, data profiling, metric validation, churn-risk segmentation |
+| Power BI Desktop | Semantic model, DAX measures, 4-page executive dashboard |
+| Git / GitHub | Version control and portfolio documentation |
 
 ## Dataset
+**Source:** [SaaS Subscription & Churn Analytics Dataset — Kaggle](https://www.kaggle.com/datasets/rivalytics/saas-subscription-and-churn-analytics-dataset)
+**Company Name in Data:** RavenStack (fictional)
+**Type:** Synthetic data — not real customer data
 
-- **Name:** Ravenstack SaaS Subscription and Churn Analytics Dataset (synthetic)  
-- **Source:** Kaggle – SaaS Subscription and Churn Analytics Dataset  
-- **Link:** https://www.kaggle.com/datasets/rivalytics/saas-subscription-and-churn-analytics-dataset  
+| File | Description | Rows |
+|---|---|---|
+| ravenstack_accounts.csv | Customer account profiles | 500 |
+| ravenstack_subscriptions.csv | Subscription records with MRR/ARR | 5000 |
+| ravenstack_feature_usage.csv | Feature-level usage events | 25000 |
+| ravenstack_support_tickets.csv | Support ticket history | 2000 |
+| ravenstack_churn_events.csv | Churn event records with reason codes | 600 |
 
-Key CSV files used in this project:
+## Dashboard Pages
+| Page | Business Question | Key Visuals |
+|---|---|---|
+| Executive Overview | Is churn increasing and how much revenue is exposed? | KPI cards, monthly churn/MRR trend, active vs churned, revenue at risk |
+| Churn Drivers | Which customer groups churn more often? | Churn by plan, tenure band, usage group, support ticket group |
+| Revenue Risk | Which at-risk customers carry the highest MRR exposure? | At-risk segment matrix, plan-level MRR, high-value customer table |
+| Customer / QA Detail | Can analysts validate records and explain totals? | Record table, filters, KPI validation cards |
 
-- `ravenstack_accounts.csv`  
-- `ravenstack_subscriptions.csv`  
-- `ravenstack_feature_usage.csv`  
-- `ravenstack_support_tickets.csv`  
-- `ravenstack_churn_events.csv`  
+## Key KPIs
+| KPI | Definition |
+|---|---|
+| Active Customers | Accounts where churnflag = 'False' in accounts table |
+| Churned Customers | Accounts with a record in churn_events table |
+| Churn Rate | Churned Customers / (Active + Churned Customers) |
+| MRR | SUM(mrramount) from subscriptions where churnflag = 'False' AND istrial = 'False' |
+| ARPU | MRR / Active Customers |
+| Revenue at Risk | MRR from customers in At Risk or High Value At Risk segments |
+| Support Ticket Rate | Total tickets / Active Customers × 100 |
 
-This dataset is synthetic and does **not** represent real customer data.
+## Repository Structure
+saas-churn-revenue-analytics/
+  data/raw/           ← original Kaggle CSVs (never edited)
+  data/processed/     ← cleaned outputs for Power BI
+  sql/                ← create, clean, and KPI validation scripts
+  notebooks/          ← Python EDA and validation notebook
+  powerbi/            ← .pbix dashboard file
+  docs/               ← data dictionary, QA checklist, executive summary
+  images/             ← dashboard screenshots
 
-## Planned Dashboard Pages
+## How to Reproduce
+1. Download dataset from Kaggle link above → place CSVs in `data/raw/`
+2. Run SQL scripts in order:
+   - `sql/01_create_tables.sql`
+   - `sql/02_cleaning_views.sql`
+   - `sql/03_kpi_validation.sql`
+3. Open `notebooks/saas_churn_eda_quality_checks.ipynb` and run all cells
+4. Open `powerbi/SaaS_Churn_Revenue_Dashboard.pbix` in Power BI Desktop
 
-1. **Executive Overview** – high-level KPIs (Active Customers, Churned Customers, Churn Rate, MRR, ARPU, Revenue at Risk) and monthly churn / MRR trends  
-2. **Churn Drivers** – churn by plan, tenure band, usage level, support tickets, and customer segments  
-3. **Revenue Risk** – MRR exposure by at-risk segments, plans, and high-value at-risk customers  
-4. **Customer / QA Detail** – record-level table with filters, KPI validation cards, and QA notes for stakeholder trust
-
-## Business Questions
-
-1. How is overall customer churn rate trending over time for the SaaS subscription base?  
-2. Which plans, regions, or customer segments exhibit the highest churn and associated MRR loss?  
-3. How much monthly recurring revenue is currently at risk from customers showing churn signals or declining usage?  
-4. How does customer tenure relate to churn likelihood and revenue at risk?  
-5. How does support ticket volume or intensity correlate with churn outcomes and MRR loss?  
-6. Which customer groups should be prioritized first for retention actions such as offers, onboarding improvements, or proactive support outreach?
-
-## Reproducibility (High-Level)
-
-- Load raw CSV files from Kaggle into the `data/raw/` folder (unmodified)  
-- Build a clean relational / star schema in SQL before any dashboarding  
-- Validate all core KPIs (Active Customers, Churned Customers, Churn Rate, MRR, ARPU, Revenue at Risk) in SQL and Python  
-- Connect Power BI to the validated model and create DAX measures with a dedicated validation page  
-- Document data dictionary, QA checks, assumptions, and business findings in the `docs/` folder
+## Status
+🚧 In Progress — Day 1 of 7
