@@ -172,11 +172,28 @@ SELECT
         WHEN a.tenure_months_current <= 12  THEN '7-12 Months'
         WHEN a.tenure_months_current <= 24  THEN '13-24 Months'
         ELSE '24+ Months'
-    END AS tenure_band
+    END AS tenure_band,
+
+    -- ✅ NEW: risk_segment based on business rules
+    -- Replace the risk_segment CASE block with this:
+CASE
+    WHEN a.churn_flag = 1
+        THEN 'Churned'
+    WHEN a.churn_flag = 0 
+         AND s.mrramount >= 500 
+         AND a.tenure_months_current <= 24
+        THEN 'High Value At Risk'
+    WHEN a.churn_flag = 0 
+         AND a.tenure_months_current <= 24
+        THEN 'At Risk'
+    WHEN a.churn_flag = 0 
+         AND a.tenure_months_current <= 32
+        THEN 'Watchlist'
+    ELSE 'Healthy'
+END AS risk_segment
+
 FROM clean_accounts a
 LEFT JOIN (
-    -- Step 1: Rank subscriptions per account
-    -- Rank 1 = latest startdate, highest mrramount as tiebreaker
     SELECT
         accountid,
         plantier,
@@ -196,42 +213,47 @@ LEFT JOIN (
     AND s.row_rank  = 1;
     
 select * from vw_customer_dim;
+SELECT risk_segment, COUNT(*) AS customer_count
+FROM vw_customer_dim
+GROUP BY risk_segment
+ORDER BY customer_count DESC;
+
+SELECT 
+    MIN(tenure_months_current) AS min_tenure,
+    MAX(tenure_months_current) AS max_tenure,
+    AVG(tenure_months_current) AS avg_tenure,
+    COUNT(CASE WHEN tenure_months_current <= 12 THEN 1 END) AS under_12_months,
+    COUNT(CASE WHEN tenure_months_current <= 24 THEN 1 END) AS under_24_months,
+    COUNT(CASE WHEN churn_flag = 0 THEN 1 END) AS active_customers
+FROM vw_customer_dim;
 
 -- ------------------------------------------------------------
 -- BI VIEW 2: vw_subscription_facts
 -- Purpose : Subscription fact table — MRR source of truth.
 --           Active, paid (non-trial) subscriptions only.
 -- ------------------------------------------------------------
-CREATE OR REPLACE VIEW vw_churn_facts AS
+CREATE OR REPLACE VIEW vw_subscription_facts AS
 SELECT
-    ce.churn_event_id,
-    ce.accountid,
-    ce.churn_date,
-    DATE_FORMAT(ce.churn_date, '%Y-%m')     AS churn_month,
-    ce.reason_code,
-    ce.refund_amount_usd,
-    ce.preceding_upgrade_flag,
-    ce.preceding_downgrade_flag,
-    ce.is_reactivation,
-    ce.feedback_text,
-    s.plantier                              AS plan_at_churn,
-    s.mrramount                             AS mrr_at_churn
-FROM clean_churn_events ce
-LEFT JOIN (
-    -- Get the subscription with the latest startdate per account
-    SELECT s1.accountid, s1.plantier, s1.mrramount, s1.startdate
-    FROM clean_subscriptions s1
-    INNER JOIN (
-        SELECT
-            accountid,
-            MAX(startdate) AS latest_start
-        FROM clean_subscriptions
-        GROUP BY accountid
-    ) latest
-        ON  s1.accountid = latest.accountid
-        AND s1.startdate = latest.latest_start
-) s ON ce.accountid = s.accountid
-WHERE ce.is_reactivation = 0;
+    s.subscriptionid,
+    s.accountid,
+    s.plantier                              AS plan_name,
+    s.mrramount                             AS monthly_fee,
+    s.startdate                             AS start_date,
+    s.enddate                               AS end_date,
+    DATE_FORMAT(s.startdate, '%Y-%m')       AS start_month,
+    DATE_FORMAT(s.enddate,   '%Y-%m')       AS end_month,
+    s.seats,
+    s.billingfrequency,
+    s.autorenew_flag,
+    s.active_revenue_flag,
+    CASE
+        WHEN s.enddate IS NULL THEN 'Active'
+        ELSE 'Ended'
+    END                                     AS subscription_status,
+    ROUND(
+        DATEDIFF(COALESCE(s.enddate, CURDATE()), s.startdate) / 30.44
+    , 0)                                    AS duration_months
+FROM clean_subscriptions s;
 select * from vw_subscription_facts;
 
 -- ------------------------------------------------------------
@@ -320,7 +342,6 @@ WHERE TABLE_SCHEMA = 'saas_churn_db'
 ORDER BY TABLE_NAME;
 
 
-
 -- -------------check
 
 -- 1. Customer dimension — should have 500 rows, no duplicates
@@ -328,9 +349,11 @@ SELECT COUNT(*) AS total_customers FROM vw_customer_dim;
 
 -- 2. MRR source of truth — active paid subs only
 SELECT
-    COUNT(*)        AS active_paid_subs,
-    SUM(mrramount)  AS total_mrr
-FROM vw_subscription_facts;
+    COUNT(*)            AS active_paid_subs,
+    SUM(monthly_fee)    AS total_mrr
+FROM vw_subscription_facts
+WHERE subscription_status = 'Active'
+  AND active_revenue_flag = 1;
 
 -- 3. Churn events (net churn — reactivations excluded)
 SELECT COUNT(*) AS net_churn_events FROM vw_churn_facts;

@@ -169,3 +169,12 @@
 - Churn Rate denominator = total unique accountids (churned + active) — document any variation
 - Tenure measured from accounts.signupdate to churn_date (churned) or GETDATE() (active)
 - Plan tier source of truth = subscriptions.plantier (accounts.plantier may lag upgrades/downgrades)
+
+
+### vw_subscription_facts — Column Mapping
+| View Column | Source Column | Notes |
+|-------------|---------------|-------|
+| monthly_fee | mrramount | Renamed for business readability |
+| plan_name | plantier | Renamed for business readability |
+| start_date | startdate | Renamed for consistency |
+| end_date | enddate | NULL = active subscription |
