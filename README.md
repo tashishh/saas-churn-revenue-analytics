@@ -35,9 +35,9 @@ volume may be a leading indicator of churn.
 | File | Description | Rows |
 |---|---|---|
 | ravenstack_accounts.csv | Customer account profiles | 500 |
-| ravenstack_subscriptions.csv | Subscription records with MRR | 3,814 |
+| ravenstack_subscriptions.csv | Subscription records with MRR | 5,000 |
 | ravenstack_support_tickets.csv | Support ticket history | 2,000 |
-| ravenstack_churn_events.csv | Churn event records with reason codes | 539 |
+| ravenstack_churn_events.csv | Churn event records with reason codes | 600 |
 
 ## Dashboard Pages
 | Page | Business Question | Key Visuals |

@@ -13,9 +13,9 @@
 | File Name | Table Name (SQL) | Row Count | Primary Key | Description |
 |---|---|---|---|---|
 | ravenstack_accounts.csv | accounts | 500 | accountid | Customer account profiles — one row per company |
-| ravenstack_subscriptions.csv | subscriptions | 3,814 | subscriptionid | Subscription records with MRR, plan, billing |
+| ravenstack_subscriptions.csv | subscriptions | 5,000 | subscriptionid | Subscription records with MRR, plan, billing |
 | ravenstack_support_tickets.csv | support_tickets | 2,000 | ticketid | Support ticket history linked to accounts |
-| ravenstack_churn_events.csv | churn_events | 539 | churn_event_id | One row per churn event — reason, date, refund |
+| ravenstack_churn_events.csv | churn_events | 600 | churn_event_id | One row per churn event — reason, date, refund |
 
 ---
 
@@ -105,7 +105,7 @@
 
 **⚠️ Known Issue:** `account_id` (with underscore) must be aliased when joining to other tables that use `accountid` (no underscore).
 
-**Note on churn counting:** This table logs 539 churn *events*, which can exceed the number of unique churned *customers* (110) because some accounts have multiple churn/reactivation cycles. The `accounts.churnflag` field (110 = True) is the source-of-truth for the Churned Customers KPI, not a distinct count of this table.
+**Note on churn counting:** This table logs 600 churn *events*, which can exceed the number of unique churned *customers* (110) because some accounts have multiple churn/reactivation cycles. The `accounts.churnflag` field (110 = True) is the source-of-truth for the Churned Customers KPI, not a distinct count of this table.
 
 ---
 

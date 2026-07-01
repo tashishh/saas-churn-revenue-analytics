@@ -11,9 +11,9 @@
 | Active Customers | 390 | 390 | 390 | ✅ Match |
 | Churned Customers | 110 | 110 | 110 | ✅ Match |
 | Total MRR | $10,159,608.00 | $10,159,608.00 | $10.16M | ✅ Match |
-| Total Subscriptions | 3,814 | 3,814 | 3,814 | ✅ Match |
+| Total Subscriptions | 5,000 | 5,000 | 5,000 | ✅ Match |
 | Total Support Tickets | 2,000 | 2,000 | 2,000 | ✅ Match |
-| Total Churn Events | 539 | 539 | 539 | ✅ Match |
+| Total Churn Events | 600 | 600 | 600 | ✅ Match |
 
 > **Note on Churned Customers correction:** An early Day 2 draft cited 339 churned customers, based on a distinct-account count of net churn events rather than the `churnflag` field on the accounts table. This was superseded by the Day 6 reconciliation, which confirmed **110** as the correct, consistent churned-customer count matching both SQL and Power BI. The 339 figure describes churn *events*, not unique churned *customers*, and should not be used as a KPI.
 
@@ -21,9 +21,9 @@
 - Churn Rate denominator = Total Customers (500)
 - Churned Customers = accounts where `churnflag = 'False'`... i.e., accounts flagged as churned in the accounts table (110 accounts)
 - Active Customers = accounts where `churnflag` indicates active status in the accounts table (390 accounts)
-- Churn Events (539) can exceed Churned Customers (110) because some accounts have multiple churn/reactivation events over their lifecycle
+- Churn Events (600) can exceed Churned Customers (110) because some accounts have multiple churn/reactivation events over their lifecycle
 - MRR excludes trial subscriptions (`istrial = 'True'`) and uses only subscriptions flagged `active_revenue_flag = 1`
-- Total Subscriptions (3,814) is higher than 500 because accounts have multiple subscription records over time
+- Total Subscriptions (5,000) is higher than 500 because accounts have multiple subscription records over time
 
 ## Data Quality Issues Found
 | Issue | Table | Column | Resolution |
